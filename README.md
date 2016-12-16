@@ -1,6 +1,6 @@
 This is some neural network code...
 
-Fails 2 out of 95 tests... No idea why... The public can take a stab at it...
+Fails 2 out of 95 tests... Don't want to overfit the data set.
 
 It implements the ReLU function which is:
 
