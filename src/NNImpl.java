@@ -147,10 +147,6 @@ public class NNImpl{
 		{
 			Node outputNode = outputNodes.get(i);
 
-			System.out.println("in");
-			System.out.println(outputNode.getOutput());
-			System.out.println("out");
-
 			if(outputNode.getOutput() >= outputVal)
 			{
 				outputVal = outputNode.getOutput();

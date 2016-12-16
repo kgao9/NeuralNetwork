@@ -66,13 +66,6 @@ public class HW4{
 			outputs[i]=nn.calculateOutputForInstance(testSet.get(i));
 			int actual_idx=-1;
 			
-			if(i==28)
-			{
-				System.out.println("start here");
-				System.out.println(testSet.get(i).toString());
-				System.exit(0);
-			}
-			
 			for (int j=0; j < testSet.get(i).classValues.size(); j++) {
 				if (testSet.get(i).classValues.get(j) > 0.5)
 					actual_idx=j;
