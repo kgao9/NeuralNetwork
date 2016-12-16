@@ -34,6 +34,7 @@ public class NNImpl{
 		inputNodes=new ArrayList<Node>();
 		int inputNodeCount=trainingSet.get(0).attributes.size();
 
+		//output nodes
 		int outputNodeCount=trainingSet.get(0).classValues.size();
 		for(int i=0;i<inputNodeCount;i++)
 		{
@@ -92,22 +93,26 @@ public class NNImpl{
 		int index = 0;
 
 		//just run the instance I think
-		//bias to hidden at end
+		//bias to hidden at end, so we'll skip that node
 		for(int i = 0; i < this.inputNodes.size() - 1; i++)
 		{
 			Node inputNode = this.inputNodes.get(i);
 
 			inputNode.setInput(inst.attributes.get(i));
+			
+			//we want to now update the list of nodes
 			this.inputNodes.set(i, inputNode);
 		}
 
-		//override hidden layer
+		//we want to now update the list of hidden nodes
 		for(int h = 0; h < this.hiddenNodes.size(); h++)
 		{	
 			Node hidden = this.hiddenNodes.get(h);
 			
+			//hidden now has correct output
 			hidden.calculateOutput();
 
+			//update the hidden nodes' parents
 			if(h != this.hiddenNodes.size() - 1)
 			{
 				for(int i = 0; i < this.inputNodes.size(); i++)
@@ -120,16 +125,19 @@ public class NNImpl{
 				}
 			}
 
+			//update hidden node list
 			this.hiddenNodes.set(h, hidden);
 		}
 
-		//override hidden layer
+		//we want to now update the output nodes
 		for(int o = 0; o < this.outputNodes.size(); o++)
 		{
 			Node output = this.outputNodes.get(o);
-			
+		
+			//output now has correct output
 			output.calculateOutput();
 
+			//update the output nodes' parents
 			for(int h = 0; h < this.hiddenNodes.size(); h++)
 			{
 				NodeWeightPair old = output.parents.get(h);
@@ -139,10 +147,12 @@ public class NNImpl{
 				output.parents.set(h, newPair);
 			}
 
+			//update output node list
 			this.outputNodes.set(o, output);
 		}
 
 		//for each output node, get output
+		//find index of largest output and return it
 		for(int i = 0; i < outputNodes.size(); i++)
 		{
 			Node outputNode = outputNodes.get(i);
@@ -165,18 +175,16 @@ public class NNImpl{
 
 	public void train()
 	{
+		//run until epoch is reached
 		for(int e = 0; e < maxEpoch; e++)
 		{
-			// TODO: add code here
 			//we will do the following
 			//train until we run out of training examples
 			for(int i = 0; i < this.trainingSet.size(); i++)
 			{
-				//breakpoint
-				//if(i == 1)
-					//System.exit(0);
 				Instance getInstance = trainingSet.get(i);
 
+				//update all the nodes
 				calculateOutputForInstance(getInstance);
 
 				ArrayList <Double> deltaOut = new ArrayList <Double> ();
@@ -190,17 +198,19 @@ public class NNImpl{
 
 					double outputVal = output.getOutput();
 
+					//the if-else is the derivative
+					//our delta is derivative * error term
 					if(outputVal == 0)
 						deltaOut.add(0.0);
 
 					else
 					{
-						//double delta = 1.0;
-						double delta = (outputVal - actual);//*outputVal*(1 - outputVal);
+						double delta = (outputVal - actual);
 						deltaOut.add(delta);
 					}
 				}
 
+				//calculate delta for hidden layer
 				for(int h = 0; h < this.hiddenNodes.size(); h++)
 				{
 					Node hidden = this.hiddenNodes.get(h);
@@ -218,14 +228,13 @@ public class NNImpl{
 
 					double outputVal = hidden.getOutput();
 
+					//delta is derivative * sum(weight * deltaOut)
 					if(outputVal == 0)
 						deltaHid.add(0.0);
 
 					else
 						deltaHid.add(sum);
-					//deltaHid.add(1.0);
-					//double delta = sum * outputVal * (1 - outputVal);
-					//deltaHid.add(delta);
+					
 				}
 
 				//new weights
@@ -242,6 +251,7 @@ public class NNImpl{
 						continue;
 					}
 
+					//for each hidden node, calculate new weight
 					for(int j = 0; j < hidden.parents.size(); j++)
 					{
 						NodeWeightPair getPair = hidden.parents.get(j);
@@ -253,17 +263,18 @@ public class NNImpl{
 						hidden.parents.set(j, newPair);
 					}
 
+					//update hidden node
 					this.hiddenNodes.set(h, hidden);
 				}
 
 				//for each output node, update weights
-				//for each hidden node, update weights
 				for(int c = 0; c < deltaOut.size(); c++)
 				{
 					Node output = this.outputNodes.get(c);
 
 					double delta = deltaOut.get(c);
 
+					//for each output node, calculate new weight
 					for(int j = 0; j < output.parents.size(); j++)
 					{
 						NodeWeightPair getPair = output.parents.get(j);
@@ -275,6 +286,7 @@ public class NNImpl{
 						output.parents.set(j, newPair);
 					}
 
+					//update output node
 					this.outputNodes.set(c, output);
 				}
 			}    

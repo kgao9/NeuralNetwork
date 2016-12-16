@@ -64,7 +64,6 @@ public class Node{
 
             for(NodeWeightPair getPair : parents)
             {
-            	//System.out.println(getPair.weight);
                 reLUInput += getPair.node.getOutput() * getPair.weight; 
             }
             
